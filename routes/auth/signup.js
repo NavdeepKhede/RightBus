@@ -2,32 +2,11 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const createUserSchema = require('../../models/userSchema');
+const {createUserSchema} = require('../../models/userSchema');
 const pool = require('../../config/connection');
+const { createUser } = require('../../models/userSchema');
 
 const router = express.Router();
-
-// Ensure the user schema exists
-createUserSchema();
-
-// Function to create a new user
-const createUser = async (name, email, phone, password) => {
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Log the hashed password (not recommended in production)
-  console.log('Hashed Password:', hashedPassword);
-
-  // Execute the database query
-  const query = 'INSERT INTO users (name, email, phone, password) VALUES ($1, $2, $3, $4) RETURNING *';
-  const result = await pool.query(query, [name, email, phone, hashedPassword]);
-
-  // Log the result of the database query
-  console.log('Database Result:', result);
-
-  // Return the first row from the result
-  return result.rows[0];
-};
 
 
 // Endpoint for user sign-up
