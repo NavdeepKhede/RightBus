@@ -3,11 +3,11 @@ const jwt = require('jsonwebtoken');
 const fetchUser = (req, res, next) => {
     try {
         // Get the user from the jwt token and add id to req object
-        const authHeader = req.header('cookie');
+        const authHeader = req.header('Authorization');
         
     
         // Extract the token from the header
-        const token = authHeader.split('=')[1];
+        const token = authHeader.split(' ')[1];
         if (!token) {
             res.status(401).send({ error: "Please authenticate using a valid token" })
         }
