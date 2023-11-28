@@ -122,7 +122,7 @@ class Bus {
       currentDate = currentDate.toLocaleDateString();
       const query = `
       SELECT b.*,
-      b.totalSeats - COALESCE(COUNT(sr.seat_number), 0) AS available_seats, r.src, r.destination, sr.journey_date AS date
+      b.totalSeats - COALESCE(COUNT(sr.seat_number), 0) AS available_seats, r.src, r.destination, $4 AS date
       FROM buses b
       JOIN routes r ON b.route_id = r.id
       LEFT JOIN seat_reservations sr ON b.id = sr.bus_id AND sr.journey_date = $4
