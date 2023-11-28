@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
       { expiresIn: "1h" }
     );
     res.cookie("token", token);
-    res.json({ role: "user" });
+    res.json({ role: newUser.role });
   } catch (error) {
     console.error("Error signing up user", error);
     res.status(500).json({ error: "Internal Server Error" });

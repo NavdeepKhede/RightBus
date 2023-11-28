@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
     // Set the JWT as an HTTP-only cookie
     res.cookie('token', token);
 
-    res.json({ message: 'User signed in successfully', role: currentUser.role });
+    res.json({ token: token, role: currentUser.role });
   } catch (error) {
     console.error('Error signing in user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
