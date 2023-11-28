@@ -1,5 +1,3 @@
-const pool = require('../config/connection');
-
 class Reservation {
   constructor(pool) {
     this.pool = pool;
@@ -65,11 +63,18 @@ class Reservation {
   }
 
   async bookSeat(bus_id, route_id, seat_number, dateOfJourney, user_id) {
-    const query = `
-      INSERT INTO seat_reservations(bus_id, route_id, seat_number, journey_date, user_id) 
-      VALUES ($1, $2, $3, $4, $5) RETURNING *;
-    `;
-    return await this.pool.query(query, [bus_id, route_id, seat_number, dateOfJourney, user_id]).then(data => data.rows);
+    try{
+      const query = `
+        INSERT INTO seat_reservations(bus_id, route_id, seat_number, journey_date, user_id) 
+        VALUES ($1, $2, $3, $4, $5) RETURNING *;
+      `;
+      const result = await this.pool.query(query, [bus_id, route_id, seat_number, dateOfJourney, user_id]);
+      console.log('Seat is booked');
+      return result.rows[0];
+    } catch(error){
+      console.error('Unable to book ticket:', error);
+      return error;
+    }
   }
 }
 
