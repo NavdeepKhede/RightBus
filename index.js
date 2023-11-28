@@ -1,6 +1,7 @@
 // index.js
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const signinRouter = require('./routes/auth/signin.js');
 const signupRouter = require('./routes/auth/signup.js');
 const intialiseDB = require('./models/initialiseDB.js');
@@ -10,6 +11,9 @@ const port = 3000;
 
 app.use(bodyParser.json());
 app.use(logger('dev'));
+app.use(cors({
+  origin: '*'
+}));
 // User/Admin Auth
 app.use('/api/auth/signin', signinRouter);
 app.use('/api/auth/signup', signupRouter);
