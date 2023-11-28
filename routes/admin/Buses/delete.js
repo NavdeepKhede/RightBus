@@ -1,17 +1,18 @@
 const express = require('express');
-const { deleteBusById } = require('../../../models/busSchema');
+const Bus = require('../../../models/busSchema');
+const pool = require('../../../config/connection')
 const fetchUser = require('../../../middleware/fetchUser');
 const checkAdminRole = require('../../../middleware/checkAdmin');
 
 const router = express.Router();
-
+const bus = new Bus(pool);
 // Endpoint for deleting a bus by an admin
 router.delete('/:busId', fetchUser, checkAdminRole, async (req, res) => {
   try {
     const busId = req.params.busId;
 
     // Delete the bus using the model
-    let isSucessFull = await deleteBusById(busId, req.userId);
+    let isSucessFull = await bus.deleteBusById(busId, req.userId);
     if (!isSucessFull) {
       return res.status(400).json({ error: 'Bus not found' });
     }

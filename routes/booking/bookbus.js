@@ -1,9 +1,10 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { bookSeat } = require('../../models/reservationSchema');
+const Reservation = require('../../models/reservationSchema');
 const fetchUser = require('../../middleware/fetchUser');
 
 const router = express.Router();
+const reservation = new Reservation();
 
 // Endpoint for booking a bus by a user
 router.post('/', fetchUser, async (req, res) => {
@@ -17,7 +18,7 @@ router.post('/', fetchUser, async (req, res) => {
     }
 
     // Book a seat using the model
-    await bookSeat(bus_id, route_id, seat_number, date_of_journey, req.userId);
+    await reservation.bookSeat(bus_id, route_id, seat_number, date_of_journey, req.userId);
 
     res.json({ message: 'Bus booked successfully' });
   } catch (error) {

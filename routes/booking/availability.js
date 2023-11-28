@@ -1,20 +1,24 @@
 const express = require('express');
 const fetchUser = require('../../middleware/fetchUser');
-const { seatAvailability } = require('../../models/reservationSchema');
-const { getBusById } = require('../../models/busSchema');
+const Reservation = require('../../models/reservationSchema');
+const Bus = require('../../models/busSchema');
+const pool = require('../../config/connection');
 
 const router = express.Router();
+const reservation = new Reservation(pool);
+const bus = new Bus(pool);
+
 
 const checkIfBusIsAvailableThatDay = async (busId, date) => {
   try{
     // Format the date to get the day of the week
     const bookingDayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
   
-    const bus = await getBusById(busId);
-    if (!bus) {
+    const currentBus = await bus.getBusById(busId);
+    if (!currentBus) {
       return false;
     }
-    return bus.day_of_working.includes(bookingDayOfWeek.toString().toLowerCase());
+    return currentBus.day_of_working.includes(bookingDayOfWeek.toString().toLowerCase());
   } catch(error){
     console.error('Unable to find bus availability on that day', error);
     return false;
@@ -38,7 +42,7 @@ router.get('/:id', fetchUser, async (req, res) => {
       return res.status(404).json({ error : 'Bus not available this day'})
     }
 
-    const availability = await seatAvailability(id, date);
+    const availability = await reservation.seatAvailability(id, date);
     res.json(availability);
   } catch (error) {
     console.error('Error checking seat availability:', error);

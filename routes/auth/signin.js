@@ -2,9 +2,10 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../../config/connection');
 const jwt = require('jsonwebtoken');
-const { getUserByEmail } = require('../../models/userSchema');
+const User = require('../../models/userSchema');
 
 const router = express.Router();
+const user = new User(pool);
 
 // Endpoint for user sign-in
 router.post('/', async (req, res) => {
@@ -15,16 +16,16 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const userResult = await getUserByEmail(email);
+    const userResult = await user.getUserByEmail(email);
 
     if (userResult === null) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const user = userResult;
+    const currentUser = userResult;
 
     // Check if the provided password is valid
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, currentUser.password);
 
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -32,7 +33,7 @@ router.post('/', async (req, res) => {
 
     // Generate and send JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: currentUser.id, email: currentUser.email },
       'your_secret_key', // Replace with a secure key in production
       { expiresIn: '1h' }
     );
@@ -40,7 +41,7 @@ router.post('/', async (req, res) => {
     // Set the JWT as an HTTP-only cookie
     res.cookie('token', token);
 
-    res.json({ message: 'User signed in successfully', role: user.role });
+    res.json({ message: 'User signed in successfully', role: currentUser.role });
   } catch (error) {
     console.error('Error signing in user:', error);
     res.status(500).json({ error: 'Internal Server Error' });

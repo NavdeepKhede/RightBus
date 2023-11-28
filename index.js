@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 // User/Admin Auth
 app.use('/api/auth/signin', signinRouter);
 app.use('/api/auth/signup', signupRouter);
-
+app.use('/api/auth/user', require('./routes/user/getUser.js'));
 // Extracting data
 app.use('/buses/add', require('./routes/admin/Buses/add'));
 app.use('/getallbuses', require('./routes/admin/Buses/getallbuses'));

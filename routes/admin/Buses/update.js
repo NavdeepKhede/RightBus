@@ -1,9 +1,11 @@
 const express = require('express');
-const { updateBus } = require('../../../models/busSchema');
+const pool = require('../../../config/connection');
+const Bus = require('../../../models/busSchema');
 const fetchUser = require('../../../middleware/fetchUser');
 const checkAdminRole = require('../../../middleware/checkAdmin');
 
 const router = express.Router();
+const bus = new Bus(pool);
 
 // Endpoint for updating an existing bus by an admin
 router.put('/:busId', fetchUser, checkAdminRole, async (req, res) => {
@@ -18,7 +20,7 @@ router.put('/:busId', fetchUser, checkAdminRole, async (req, res) => {
     }
 
     // Update the bus using the model
-    await updateBus(busId, name, route_id, occupancy, total_seats, day_of_working);
+    await bus.updateBus(busId, name, route_id, occupancy, total_seats, day_of_working);
 
     res.json({ message: `Bus with ID ${busId} updated successfully` });
   } catch (error) {

@@ -1,15 +1,16 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { extractBookingDetails } = require('../../models/userSchema');
+const User = require('../../models/userSchema');
 const fetchUser = require('../../middleware/fetchUser');
 
 const router = express.Router();
+const user = new User();
 
 router.get('/', fetchUser, async (req, res) => {
   try {
 
     // Extract booking details for the user using the model
-    const bookingDetails = await extractBookingDetails(req.userId);
+    const bookingDetails = await user.extractBookingDetails(req.userId);
     res.json(bookingDetails);
   } catch (error) {
     console.error('Error extracting booking details:', error);

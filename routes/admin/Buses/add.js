@@ -1,11 +1,14 @@
 const router = require('express').Router();
-const { createBusTable, addBus } = require('../../../models/busSchema');
+const pool = require('../../../config/connection');
+const Bus = require('../../../models/busSchema');
 const fetchUser = require('../../../middleware/fetchUser');
 const checkAdminRole = require('../../../middleware/checkAdmin');
-const { addRoute } = require('../../../models/routeSchema');
-const { updateUserBuses } = require('../../../models/busUserSchema');
+const Route = require('../../../models/routeSchema');
+const BusUser = require('../../../models/busUserSchema');
 
-
+const bus = new Bus(pool);
+const route = new Route(pool);
+const busUser = new BusUser(pool);
 
 // Endpoint for creating a new bus by an admin
 router.post('/', fetchUser, checkAdminRole, async (req, res) => {
@@ -20,10 +23,10 @@ router.post('/', fetchUser, checkAdminRole, async (req, res) => {
     // Add a new bus using the model
     total_seats = occupancy;
     
-    const bus_route_id = await addRoute(src, destination, distance)
+    const bus_route_id = await route.addRoute(src, destination, distance)
     .then(async (data)=> {
       const bus_route_id = data.id;
-      const busId = await addBus(req.userId,{name, bus_route_id, occupancy, total_seats, day_of_working }).id;
+      const busId = await bus.addBus(req.userId,{name, bus_route_id, occupancy, total_seats, day_of_working }).id;
     })
     // const userBusRelation = await updateUserBuses(req.userId, busId);
     res.json({ message: 'Bus created successfully' });

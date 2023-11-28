@@ -1,11 +1,12 @@
 const router = require('express').Router();
-const { getAllBuses } = require('../../../models/busSchema');
+const Bus = require('../../../models/busSchema');
+const pool = require('../../../config/connection');
 
-
+const bus = new Bus(pool);
 // Endpoint to retrieve all buses
 router.get('/', async (req, res) => {
   try {
-    const buses = await getAllBuses();
+    const buses = await bus.getAllBuses();
     res.json(buses);
   } catch (error) {
     console.error('Error retrieving buses:', error);
