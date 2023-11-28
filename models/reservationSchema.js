@@ -62,7 +62,7 @@ const seatAvailability = async (id, dateOfJourney) => {
 const bookSeat = async (bus_id, route_id, seat_number, dateOfJourney, user_id) => {
     const query = `
     INSERT INTO seat_reservations(bus_id, route_id, seat_number, journey_date, user_id) 
-    VALUES VALUES ($1, $2, $3, $4, $5, $6) RETURNING *
+    VALUES ($1, $2, $3, $4, $5) RETURNING *;
     `;
     return await pool.query(query, [bus_id, route_id, seat_number, dateOfJourney, user_id]).then(data => data.rows);
 }
