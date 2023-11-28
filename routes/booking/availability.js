@@ -25,9 +25,9 @@ const checkIfBusIsAvailableThatDay = async (busId, date) => {
   }
 };
 
-router.get('/:id', fetchUser, async (req, res) => {
+router.get('/', fetchUser, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.query.id;
     let date = req.query.date;
 
 
@@ -43,7 +43,11 @@ router.get('/:id', fetchUser, async (req, res) => {
     }
 
     const availability = await reservation.seatAvailability(id, date);
-    res.json(availability);
+    let transformedData = {
+      seat_number: availability.map(item => item.seat_number)
+    };
+  
+    res.json(transformedData);
   } catch (error) {
     console.error('Error checking seat availability:', error);
     res.status(500).json({ error: 'Internal Server Error' });
