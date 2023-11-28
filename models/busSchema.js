@@ -46,7 +46,6 @@ class Bus {
       `;
       const result = await this.pool.query(query, [name, bus_route_id, occupancy, total_seats, day_of_working]);
       console.log('Bus added successfully');
-      await updateUserBuses(userId, result.rows[0].id);
       return result.rows[0];
     } catch (error) {
       console.error('Error adding bus:', error);

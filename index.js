@@ -4,11 +4,12 @@ const bodyParser = require('body-parser');
 const signinRouter = require('./routes/auth/signin.js');
 const signupRouter = require('./routes/auth/signup.js');
 const intialiseDB = require('./models/initialiseDB.js');
+const logger = require('morgan');
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
-
+app.use(logger('dev'));
 // User/Admin Auth
 app.use('/api/auth/signin', signinRouter);
 app.use('/api/auth/signup', signupRouter);

@@ -16,6 +16,11 @@ class DatabaseInitializer {
     }
 
     async createTables() {
+        // await this.busUser.deleteBuseUserRelationTable();
+        // await this.reservation.deleteReservationSchema();
+        // await this.bus.deleteBusTable();
+        // await this.route.deleteRoutesTable();
+        // await this.user.deleteUserTable();
         await this.route.createRoutesTable();
         await this.bus.createBusTable();
         await this.user.createUserTable();

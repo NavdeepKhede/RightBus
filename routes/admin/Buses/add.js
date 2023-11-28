@@ -26,7 +26,11 @@ router.post('/', fetchUser, checkAdminRole, async (req, res) => {
     const bus_route_id = await route.addRoute(src, destination, distance)
     .then(async (data)=> {
       const bus_route_id = data.id;
-      const busId = await bus.addBus(req.userId,{name, bus_route_id, occupancy, total_seats, day_of_working }).id;
+      const result = await bus.addBus(req.userId,{name, bus_route_id, occupancy, total_seats, day_of_working })
+      return result;
+    }).then(async (data) => {
+      const busId = data.id;
+      const result = await busUser.updateUserBuses(req.userId, busId);
     })
     // const userBusRelation = await updateUserBuses(req.userId, busId);
     res.json({ message: 'Bus created successfully' });

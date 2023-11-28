@@ -32,8 +32,28 @@ class Route {
     }
   }
 
+  async checkSrcToDestinationRoute(src, destination) {
+    try {
+      const query = `
+        SELECT * FROM routes WHERE src = $1 AND destination = $2;
+      `;
+      const result = await this.pool.query(query, [src, destination]);
+      console.log('Route checked successfully');
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Error checking src to destination route:', error);
+      return null;
+    }
+  
+  }
+
   async addRoute(src, destination, distance) {
     try {
+      const currentRoute = await this.checkSrcToDestinationRoute(src, destination);
+      if (currentRoute) {
+        console.log('Route already exists');
+        return currentRoute;
+      }
       const query = `
         INSERT INTO routes (src, destination, distance)
         VALUES ($1, $2, $3) RETURNING *;
@@ -43,7 +63,7 @@ class Route {
       return result.rows[0];
     } catch (error) {
       console.error('Error inserting route:', error);
-      return false;
+      return null;
     }
   }
 }

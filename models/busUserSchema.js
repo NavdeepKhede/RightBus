@@ -40,6 +40,7 @@ class BusUser {
         VALUES ($1, $2);
       `;
       const result = await this.pool.query(query, [userId, busId]);
+      console.log('User buses updated successfully');
       return result.rows[0];
     } catch (error) {
       console.error('Error updating user buses:', error);
