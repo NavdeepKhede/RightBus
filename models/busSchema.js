@@ -116,21 +116,23 @@ class Bus {
 
   async getBusesBySrcAndDestination(src, destination, date) {
     try{
-      const currentDate = new Date(date);
-      const dayOfWeek = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
+      let currentDate = new Date(date);
+      const dayOfWeek = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      console.log(dayOfWeek)
+      currentDate = currentDate.toLocaleDateString();
       const query = `
       SELECT b.*,
       b.totalSeats - COALESCE(COUNT(sr.seat_number), 0) AS available_seats
       FROM buses b
       JOIN routes r ON b.route_id = r.id
       LEFT JOIN seat_reservations sr ON b.id = sr.bus_id AND sr.journey_date = $4
-      WHERE r.src = '$1'
-      AND r.destination = '$2'
-      AND b.day_of_working @> ARRAY['$3']::VARCHAR[]
+      WHERE r.src = $1
+      AND r.destination = $2
+      AND b.day_of_working @> ARRAY[$3]::VARCHAR[]
       GROUP BY b.id;
       `;
       const result = await this.pool.query(query, [src, destination, dayOfWeek, currentDate]);
-      console.log(`Buses from ${src} to ${destination} on ${date} successfully fetched`);
+      console.log(`Buses from ${src} to ${destination} on ${currentDate} successfully fetched`);
       return result.rows || [];
     } catch(error) {
       console.error('Error fetching buses:', error);
