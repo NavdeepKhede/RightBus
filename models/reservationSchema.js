@@ -10,7 +10,7 @@ const createReservationSchema = async () => {
             route_id INT REFERENCES routes(id),
             seat_number INT NOT NULL,
             booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            journey_date TIMESTAMP NOT NULL
+            journey_date DATE NOT NULL
           );
         `;
         await pool.query(query);
@@ -32,17 +32,31 @@ const deleteReservationSchema = async () => {
 }
 
 const seatAvailability = async (id, dateOfJourney) => {
-    const query = `
-    SELECT seat_number
-    FROM seats
-    WHERE bus_id = $1
-    AND seat_number NOT IN (
-    SELECT seat_number
-    FROM seat_reservations
-    WHERE bus_id = $1
-    AND journey_date = $2);
-    `;
-    return await pool.query(query, [id, dateOfJourney]).then(data => data.rows);
+    try{
+        console.log(dateOfJourney)
+        const query = `
+        SELECT all_seats.seat_number
+        FROM (
+        SELECT generate_series(1, b.totalSeats) AS seat_number
+        FROM buses AS b
+        WHERE b.id = $1
+        ) AS all_seats
+        LEFT JOIN (
+        SELECT seat_number
+        FROM seat_reservations
+        WHERE bus_id = $1
+        AND journey_date = $2
+        ) AS reserved_seats
+        ON all_seats.seat_number = reserved_seats.seat_number
+        WHERE reserved_seats.seat_number IS NULL;
+        `;
+        const result = await pool.query(query, [id, dateOfJourney]);
+        console.log('Seat availability:', result.rows);
+        return result.rows;
+    } catch(error){
+        console.error('Error checking seat availability:', error);
+        return [];
+    }
 }
 
 const bookSeat = async (bus_id, route_id, seat_number, dateOfJourney, user_id) => {

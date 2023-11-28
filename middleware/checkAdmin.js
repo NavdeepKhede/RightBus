@@ -4,10 +4,10 @@ const db = require('../config/connection'); // Import your database module
 const checkAdminRole = async (req, res, next) => {
     // Get the user's ID from the JWT payload (assuming it's stored there)
     const token = req.header('cookie').split('=')[1];
-    console.log(token)
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET || 'your_secret_key');
     const userId = decodedToken.userId;
-
+    console.log(userId)
+    
     try {
         // Fetch the user's role from the database
         const user = await db.query('SELECT * FROM users WHERE id = $1', [userId]);

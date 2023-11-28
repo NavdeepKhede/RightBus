@@ -1,4 +1,5 @@
 const pool = require('../config/connection');
+const { updateUserBuses } = require('./busUserSchema');
 
 const createBusTable = async () => {
   try {
@@ -31,16 +32,17 @@ const deleteBusTable = async () => {
   }
 };
 
-const addBus = async (bus) => {
+const addBus = async (userId,bus) => {
   try {
     const { name, bus_route_id, occupancy, total_seats, day_of_working } = bus;
     const query = `
       INSERT INTO buses (bus_name, route_id, occupancy, totalSeats, day_of_working)
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES ($1, $2, $3, $4, $5) RETURNING *;
     `;
-    await pool.query(query, [name, bus_route_id, occupancy, total_seats, day_of_working]);
+    const result = await pool.query(query, [name, bus_route_id, occupancy, total_seats, day_of_working]);
     console.log('Bus added successfully');
-    return true;
+    await updateUserBuses(userId, result.rows[0].id);
+    return result.rows[0];
   } catch (error) {
     console.error('Error adding bus:', error);
     return false;
@@ -71,13 +73,13 @@ const getBusById = async (id) => {
 
 const updateBus = async (bus) => {
   try {
-    const { id, busName, route_id, occupancy, totalSeats, dateOfJourney } = bus;
+    const { id, busName, route_id, occupancy, totalSeats, day_of_working } = bus;
     const query = `
       UPDATE buses
-      SET bus_name = $1, route_id = $2, occupancy = $3, totalSeats = $4, date_of_journey = $5
+      SET bus_name = $1, route_id = $2, occupancy = $3, totalSeats = $4, day_of_working = $5
       WHERE id = $6
     `;
-    await pool.query(query, [busName, route_id, occupancy, totalSeats, dateOfJourney, id]);
+    await pool.query(query, [busName, route_id, occupancy, totalSeats, day_of_working, id]);
     console.log('Bus updated successfully');
     return true;
   } catch (error) {
@@ -86,14 +88,24 @@ const updateBus = async (bus) => {
   }
 };
 
-const deleteBusById = async (id) => {
+const deleteBusById = async (busId, userId) => {
   try {
-    const query = 'DELETE FROM buses AS b USING bus_user_relation AS bur WHERE b.id = $1 AND b.id = bur.bus_id';
-    await pool.query(query, [id]);
+    // Begin the transaction
+    await pool.query('BEGIN');
+
+    // Delete records from bus_user_relation where bus_id matches $1
+    await pool.query('DELETE FROM bus_user_relation WHERE bus_id = $1 AND user_id = $2', [busId, userId]);
+
+    // Delete the bus from the buses table where id matches $1
+    await pool.query('DELETE FROM buses WHERE id = $1', [busId]);
+
+    // Commit the transaction (if everything succeeds)
+    await pool.query('COMMIT');
     console.log('Bus deleted successfully');
     return true;
   } catch (error) {
-    console.error('Error deleting bus:', error);
+    await pool.query('ROLLBACK');
+    console.error('Error deleting bus:');
     return false;
   }
 };

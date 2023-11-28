@@ -11,14 +11,14 @@ router.put('/:busId', fetchUser, checkAdminRole, async (req, res) => {
     const busId = req.params.busId;
 
     // Validate input
-    const { name, route_id, occupancy, total_seats, date_of_journey } = req.body;
+    const { name, route_id, occupancy, total_seats, day_of_working } = req.body;
 
-    if (!name || !route_id || !occupancy || !total_seats || !date_of_journey) {
+    if (!name || !route_id || !occupancy || !total_seats || !day_of_working) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     // Update the bus using the model
-    await updateBus(busId, name, route_id, occupancy, total_seats, date_of_journey);
+    await updateBus(busId, name, route_id, occupancy, total_seats, day_of_working);
 
     res.json({ message: `Bus with ID ${busId} updated successfully` });
   } catch (error) {

@@ -3,6 +3,7 @@ const { createBusTable, addBus } = require('../../../models/busSchema');
 const fetchUser = require('../../../middleware/fetchUser');
 const checkAdminRole = require('../../../middleware/checkAdmin');
 const { addRoute } = require('../../../models/routeSchema');
+const { updateUserBuses } = require('../../../models/busUserSchema');
 
 
 
@@ -17,11 +18,14 @@ router.post('/', fetchUser, checkAdminRole, async (req, res) => {
     }
 
     // Add a new bus using the model
-    let bus_route_id = await addRoute(src, destination, distance).id;
     total_seats = occupancy;
-    console.log(day_of_working)
-    await addBus({name, bus_route_id, occupancy, total_seats, day_of_working });
-
+    
+    const bus_route_id = await addRoute(src, destination, distance)
+    .then(async (data)=> {
+      const bus_route_id = data.id;
+      const busId = await addBus(req.userId,{name, bus_route_id, occupancy, total_seats, day_of_working }).id;
+    })
+    // const userBusRelation = await updateUserBuses(req.userId, busId);
     res.json({ message: 'Bus created successfully' });
   } catch (error) {
     console.error('Error creating bus:', error);

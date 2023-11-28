@@ -16,11 +16,10 @@ router.post('/', async (req, res) => {
     }
 
     const userResult = await getUserByEmail(email);
-    console.log(userResult)
-    if (userResult.length === 0) {
+
+    if (userResult === null) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    console.log(userResult);
 
     const user = userResult;
 
@@ -32,13 +31,11 @@ router.post('/', async (req, res) => {
     }
 
     // Generate and send JWT
-    console.log(isValidPassword)
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       'your_secret_key', // Replace with a secure key in production
       { expiresIn: '1h' }
     );
-    console.log(token)
 
     // Set the JWT as an HTTP-only cookie
     res.cookie('token', token);

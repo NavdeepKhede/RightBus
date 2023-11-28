@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { bookSeat } = require('../../../models/reservationSchema');
-const fetchUser = require('../../../middleware/fetchUser');
+const { bookSeat } = require('../../models/reservationSchema');
+const fetchUser = require('../../middleware/fetchUser');
 
 const router = express.Router();
 

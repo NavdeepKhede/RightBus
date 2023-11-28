@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { getUserBuses } = require('../../../models/busUserRelation'); // Assuming this function exists
+const { getUserBuses } = require('../../../models/busUserSchema'); // Assuming this function exists
 const fetchUser = require('../../../middleware/fetchUser');
 const checkAdminRole = require('../../../middleware/checkAdmin');
 

@@ -27,6 +27,19 @@ const deleteBuseUserRelationTable = async () => {
   }
 }
 
+const updateUserBuses = async (userId, busId) => {
+  try{
+    const query = `
+      INSERT INTO bus_user_relation (user_id, bus_id)
+      VALUES ($1, $2);
+    `;
+    const result = await pool.query(query, [userId, busId]);
+    return result.rows[0];
+  }catch(error){
+    console.error('Error updating user buses:', error);
+  }
+};
+
 const getUserBuses = async (userId) => {
   try {
     const query = `
@@ -43,4 +56,4 @@ const getUserBuses = async (userId) => {
   }
 };
 
-module.exports = { createBusUserRelationTable, deleteBuseUserRelationTable , getUserBuses };
+module.exports = { createBusUserRelationTable, updateUserBuses, deleteBuseUserRelationTable , getUserBuses };

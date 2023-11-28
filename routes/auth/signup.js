@@ -20,10 +20,8 @@ router.post("/", async (req, res) => {
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
-    console.log(role)
-    const checkUserResult = getUserByEmail(email);
-
-    if (checkUserResult.length > 0) {
+    const checkUserResult = await getUserByEmail(email);
+    if (checkUserResult) {
       return res.status(400).json({ error: "User already exists" });
     }
 

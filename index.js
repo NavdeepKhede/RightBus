@@ -22,10 +22,10 @@ app.use('/buses/update', require('./routes/admin/Buses/update'));
 
 // Booking 
 app.use('/book', require('./routes/booking/bookbus.js'));
-app.use('/availablity', require('./routes/booking/availability.js'));
+app.use('/availability', require('./routes/booking/availability.js'));
 app.use('/booking_details', require('./routes/booking/details.js'));
 
 app.listen(port, async () => {
-  await intialiseDB();
+  // await intialiseDB();
   console.log(`Server is running at http://localhost:${port}`);
 });

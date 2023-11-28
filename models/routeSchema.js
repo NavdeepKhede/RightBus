@@ -32,7 +32,7 @@ const addRoute = async (src, destination, distance) => {
   try {
     const query = `
       INSERT INTO routes (src, destination, distance)
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2, $3) RETURNING *;
     `;
     const result = await pool.query(query, [src, destination, distance]);
     console.log("Route is successfully added");
