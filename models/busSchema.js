@@ -55,7 +55,7 @@ class Bus {
 
   async getAllBuses() {
     try {
-      const query = 'SELECT * FROM buses';
+      const query = 'SELECT * FROM buses JOIN routes ON buses.route_id = routes.id;';
       const result = await this.pool.query(query);
       return result.rows;
     } catch (error) {
