@@ -1,18 +1,32 @@
-// routes/admin/buses/createBus.js
-const express = require('express');
-const { createBusSchema, addBus } = require('../../../models/busSchema');
-const fetchuser = require('../../../middleware/fetchuser');
+const router = require('express').Router();
+const { createBusTable, addBus } = require('../../../models/busSchema');
+const fetchUser = require('../../../middleware/fetchUser');
+const checkAdminRole = require('../../../middleware/checkAdmin');
+const { addRoute } = require('../../../models/routeSchema');
 
-const router = express.Router();
-createBusSchema();
+
+
 // Endpoint for creating a new bus by an admin
-router.post('/',fetchuser, async (req, res) => {
-  // Implement logic to create a new bus by an admin
-  // Validate input, insert into 'buses' table, etc.
-  const body = req.body;
-  addBus(body.name, body.src, body.destination, body.arrival, body.departure, body.data_of_journey);
+router.post('/', fetchUser, checkAdminRole, async (req, res) => {
+  try {
+    // Validate input
+    const { name, src, destination, distance, occupancy, day_of_working } = req.body;
 
-  res.json({ message: 'Create bus endpoint for admin' });
+    if (!name || !src || !destination || !distance || !occupancy || !day_of_working) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    // Add a new bus using the model
+    let bus_route_id = await addRoute(src, destination, distance).id;
+    total_seats = occupancy;
+    console.log(day_of_working)
+    await addBus({name, bus_route_id, occupancy, total_seats, day_of_working });
+
+    res.json({ message: 'Bus created successfully' });
+  } catch (error) {
+    console.error('Error creating bus:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;

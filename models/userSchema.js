@@ -1,31 +1,77 @@
-// models/userschema.js
 const pool = require('../config/connection');
 
-// Define the user schema
-const createUserSchema = async () => {
-  const query = `
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      phone VARCHAR(15) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      role VARCHAR(20) NOT NULL DEFAULT 'user',
-    );
-  `;
-  await pool.query(query);
+const createUserTable = async () => {
+  try {
+    const query = `
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone VARCHAR(15) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(20) NOT NULL DEFAULT 'user'
+      );
+    `;
+    await pool.query(query);
+    console.log('users table created successfully');
+  } catch (error) {
+    console.error('Error creating users table:', error);
+  }
 };
 
-// Function to create a new user
-const createUser = async (name, email, phone, password) => {
-  // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Execute the database query
-  const query = 'INSERT INTO users (name, email, phone, password) VALUES ($1, $2, $3, $4) RETURNING *';
-  const result = await pool.query(query, [name, email, phone, hashedPassword]);
-
-  return result.rows[0];
+const deleteUserTable = async () => {
+  try {
+    const query = 'DROP TABLE IF EXISTS users';
+    await pool.query(query);
+    console.log('users table dropped successfully');
+  } catch (error) {
+    console.error('Error dropping users table:', error);
+  }
 };
 
-module.exports = {createUserSchema, createUser};
+const createUser = async (user) => {
+  try {
+    const { name, email, phone, hashedPassword, role = 'user' } = user;
+    const query = `
+      INSERT INTO users (name, email, phone, password, role)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const result = await pool.query(query, [name, email, phone, hashedPassword, role]);
+    console.log('User created successfully');
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return null;
+  }
+};
+
+const extractBookingDetails = async (userId) => {
+  try {
+    const query = `
+      SELECT sr.*, b.*, r.*
+      FROM seat_reservations sr
+      JOIN buses b ON sr.bus_id = b.id
+      JOIN routes r ON sr.route_id = r.id
+      WHERE sr.user_id = $1;
+    `;
+    const result = await pool.query(query, [userId]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error extracting booking details:', error);
+    return [];
+  }
+};
+
+const getUserByEmail = async (email) => {
+  try {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    const result = await pool.query(query, [email]);
+    return result.rows[0] || [];
+  } catch (error) {
+    console.error('Error fetching user by email:', error);
+    return [];
+  }
+};
+
+module.exports = { createUserTable, deleteUserTable, createUser, extractBookingDetails, getUserByEmail };
