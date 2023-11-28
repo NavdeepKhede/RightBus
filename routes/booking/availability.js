@@ -3,6 +3,7 @@ const fetchUser = require('../../middleware/fetchUser');
 const Reservation = require('../../models/reservationSchema');
 const Bus = require('../../models/busSchema');
 const pool = require('../../config/connection');
+const client = require('../../config/redisClient');
 
 const router = express.Router();
 const reservation = new Reservation(pool);
@@ -36,6 +37,13 @@ router.get('/:id', fetchUser, async (req, res) => {
     }
 
     date = new Date(date);
+    const cacheKey = `availability:${id}:${date.toISOString()}`;
+    const cachedData = await client.getAsync(cacheKey);
+
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
+
     const available_day = await checkIfBusIsAvailableThatDay(id, date);
     // console.log(available_day)
     if(!available_day){
@@ -43,6 +51,9 @@ router.get('/:id', fetchUser, async (req, res) => {
     }
 
     const availability = await reservation.seatAvailability(id, date);
+    
+    await client.setAsync(cacheKey, JSON.stringify(availability));
+
     res.json(availability);
   } catch (error) {
     console.error('Error checking seat availability:', error);
