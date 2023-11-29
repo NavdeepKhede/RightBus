@@ -36,7 +36,7 @@ class Reservation {
 
   async seatAvailability(id, dateOfJourney) {
     try {
-      console.log(dateOfJourney)
+      console.log(id, dateOfJourney)
       const query = `
       WITH AllSeats AS (
         SELECT generate_series(1, (SELECT totalSeats FROM buses WHERE id = $1)) AS seat_number

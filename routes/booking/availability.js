@@ -29,13 +29,15 @@ router.get('/', fetchUser, async (req, res) => {
   try {
     const id = req.query.id;
     let date = req.query.date;
-
+    console.log("DATE:",date)
+    console.log("ID:",id)
 
     if (!date) {
       return res.status(400).json({ error: 'Missing date parameter' });
     }
 
     date = new Date(date);
+    console.log("NEW_DATE:",date)
     const available_day = await checkIfBusIsAvailableThatDay(id, date);
     // console.log(available_day)
     if(!available_day){
