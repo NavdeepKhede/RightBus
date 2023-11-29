@@ -2,9 +2,10 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Reservation = require('../../models/reservationSchema');
 const fetchUser = require('../../middleware/fetchUser');
+const pool = require('../../config/connection');
 
-const router = express.Router();
-const reservation = new Reservation();
+const router = express.Router(pool);
+const reservation = new Reservation(pool);
 
 // Endpoint for booking a bus by a user
 router.post('/', fetchUser, async (req, res) => {
