@@ -19,7 +19,7 @@ router.post('/', fetchUser, async (req, res) => {
     }
 
     // Book a seat using the model
-    await reservation.bookSeat(id, route_id, seat_number, date, req.userId);
+    await reservation.bookSeat(id, route_id, parseInt(seat_number), date, req.userId);
 
     res.json({ message: 'Bus booked successfully' });
   } catch (error) {
