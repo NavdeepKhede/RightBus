@@ -8,10 +8,11 @@ const bus = new Bus(pool);
 
 router.post('/', async (req, res) => {
     try {
-        const {src, destination, date} = req.body;
+        let {src, destination, date} = req.body;
         if(!src || !destination || !date){
             return res.status(400).json({error: 'Missing required parameter'});
         }
+        date = new Date(date).toLocaleDateString();
         const buses = await bus.getBusesBySrcAndDestination(src, destination, date);
         res.json(buses);
     } catch (error) {

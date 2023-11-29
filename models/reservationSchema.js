@@ -7,13 +7,13 @@ class Reservation {
     try {
       const query = `
         CREATE TABLE IF NOT EXISTS seat_reservations (
-          id SERIAL PRIMARY KEY,
           user_id INT REFERENCES users(id),
           bus_id INT REFERENCES buses(id),
           route_id INT REFERENCES routes(id),
           seat_number INT NOT NULL,
           booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          journey_date DATE NOT NULL
+          journey_date DATE NOT NULL,
+          PRIMARY KEY (bus_id, seat_number, journey_date)
         );
       `;
       await this.pool.query(query);
@@ -38,20 +38,19 @@ class Reservation {
     try {
       console.log(dateOfJourney)
       const query = `
-        SELECT all_seats.seat_number
-        FROM (
-          SELECT generate_series(1, b.totalSeats) AS seat_number
-          FROM buses AS b
-          WHERE b.id = $1
-        ) AS all_seats
-        LEFT JOIN (
-          SELECT seat_number
-          FROM seat_reservations
-          WHERE bus_id = $1
+      WITH AllSeats AS (
+        SELECT generate_series(1, (SELECT totalSeats FROM buses WHERE id = $1)) AS seat_number
+      ),
+      BookedSeats AS (
+        SELECT DISTINCT seat_number
+        FROM seat_reservations
+        WHERE bus_id = $1
           AND journey_date = $2
-        ) AS reserved_seats
-        ON all_seats.seat_number = reserved_seats.seat_number
-        WHERE reserved_seats.seat_number IS NULL;
+      )
+      
+      SELECT seat_number
+      FROM AllSeats
+      WHERE seat_number NOT IN (SELECT seat_number FROM BookedSeats);      
       `;
       const result = await this.pool.query(query, [id, dateOfJourney]);
       console.log('Seat availability:', result.rows);

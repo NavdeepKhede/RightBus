@@ -12,12 +12,11 @@ router.post('/', fetchUser, async (req, res) => {
   try {
 
     // Validate input
-    const { id, route_id, date, seat_number } = req.body;
-
+    let { id, route_id, date, seat_number } = req.body;
     if (!id || !route_id || !date || !seat_number) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
-
+    date = new Date().toLocaleDateString();
     // Book a seat using the model
     await reservation.bookSeat(id, route_id, parseInt(seat_number), date, req.userId);
 
