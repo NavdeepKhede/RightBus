@@ -11,14 +11,14 @@ router.post('/', fetchUser, async (req, res) => {
   try {
 
     // Validate input
-    const { bus_id, route_id, date_of_journey, seat_number } = req.body;
+    const { id, route_id, date, seat_number } = req.body;
 
-    if (!bus_id || !route_id || !date_of_journey || !seat_number) {
+    if (!id || !route_id || !date || !seat_number) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
 
     // Book a seat using the model
-    await reservation.bookSeat(bus_id, route_id, seat_number, date_of_journey, req.userId);
+    await reservation.bookSeat(id, route_id, seat_number, date, req.userId);
 
     res.json({ message: 'Bus booked successfully' });
   } catch (error) {
